@@ -1,10 +1,12 @@
+pkg load statistics
+
 %% Sample code
 % Compares the performance of recursiveNystrom to uniform Nystrom and 
 % on a forest covertype dataset.
 
 % download forest covertype data from UCI repository
-covtype = websave('covtype.csv.gz','https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/covtype.data.gz')
-covtype = gunzip(covtype)
+% covtype = websave('covtype.csv.gz','https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/covtype.data.gz')
+% covtype = gunzip(covtype)
 
 % read in data matrix and select small subset to experiment with
 A = csvread('covtype.csv');
