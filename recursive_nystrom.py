@@ -40,7 +40,6 @@ def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=F
     :param random_state:
     :return:
     '''
-    global y
     rng = np.random.RandomState(random_state)
 
     n_oversample = np.log(n_components)
@@ -105,9 +104,7 @@ def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=F
         else:
             leverage_score = np.minimum(1.0, (1 / lmbda) * np.maximum(+0.0, (
                     k_diag[current_indices, 0] - np.sum(R * KS, axis=1))))
-            #p = np.maximum(leverage_score, 1e-15) # avr: make sure that there are enough non-zero entries to choose n_components
-            p = leverage_score
-            p = p/p.sum()
+            p = leverage_score/leverage_score.sum()
 
             sample = rng.choice(X.shape[0], size=n_components, replace=False, p=p)
         indices = perm[sample]
@@ -150,7 +147,7 @@ if __name__ == "__main__":
     n2 = 5000
     n3 = 4900
     n = np.asarray([n1, n2, n3])
-    np.random.seed(5)
+    np.random.seed(10)
     X = np.concatenate([np.random.multivariate_normal(mean=[50, 10], cov=np.eye(2), size=(n1,)),
                         np.random.multivariate_normal(mean=[-70, -70], cov=np.eye(2), size=(n2,)),
                         np.random.multivariate_normal(mean=[90, -40], cov=np.eye(2), size=(n3,))], axis=0)
@@ -166,17 +163,20 @@ if __name__ == "__main__":
 
     y_list = list()
 
-    gauss(X, )
-    for i in tqdm(range(10000)):
-        indices = recursiveNystrom(X, n_components=10, kernel_func=lambda *args, **kwargs: gauss(*args, **kwargs, gamma=0.001), random_state=5)
+    iter = tqdm(range(1000))
+    for i in iter:
+        indices = recursiveNystrom(X, n_components=10, kernel_func=lambda *args, **kwargs: gauss(*args, **kwargs, gamma=0.001), random_state=None)
         #plt.figure(figsize=(16,8))
         #plt.scatter(X[idx[~np.isin(idx, indices)],0], X[idx[~np.isin(idx, indices)],1], marker='.')
         #plt.scatter(X[idx[np.isin(idx, indices)],0], X[idx[np.isin(idx, indices)],1])
         #plt.tight_layout()
         #plt.show()
+        #print(np.unique(y[indices], return_counts=True))
+        #time.sleep(0.5)
         y_list.append(y[indices])
 
     y_total = np.concatenate(y_list)
     u,c = np.unique(y_total, return_counts=True)
+    iter.close()
     print("Real balance:", n/n.sum())
     print("RLS balance:", c/c.sum())
