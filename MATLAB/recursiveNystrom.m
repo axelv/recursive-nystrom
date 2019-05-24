@@ -76,7 +76,7 @@ function [rInd] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
         % levels to keep the total runtime at O(n*s)
         sLevel = ceil(sqrt((n*s + s^3)/(4*n)));
     end
-    
+    rng(5)
     %% Start of algorithm  
     oversamp = log(sLevel);
     k = ceil(sLevel/(4*oversamp));
@@ -101,7 +101,7 @@ function [rInd] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
     kDiag = kernelFunc(X,1:n,[]);
     
     %% Main recursion, unrolled for efficiency 
-    for l = nLevels:-1:1  
+    for l = nLevels:-1:1
         % indices of current uniform sample
         rIndCurr = perm(1:lSize(l));
         % build sampled kernel
@@ -138,7 +138,9 @@ function [rInd] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
             % on the top level, we sample exactly s landmark points without replacement
             R = inv(SKS + diag(lambda*weights.^(-2)));
             levs = min(1,(1/lambda)*max(0,(kDiag(rIndCurr) - sum((KS*R).*KS,2))));
-            samp = datasample(1:n,s,'Replace',false,'Weights',levs);
+            p = max(1e-15, levs);
+            p = p./sum(p);
+            samp = datasample(1:n,s,'Replace',false,'Weights',p);
         end
         rInd = perm(samp);
     end

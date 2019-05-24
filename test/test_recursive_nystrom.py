@@ -29,9 +29,7 @@ class testRecursiveNystrom(unittest.TestCase):
 
     def setUp(self):
 
-        #Xy = np.stack([sample for _ , sample in zip(range(2000), gaussian_mixture(prior=np.asarray([0.05, 0.3, 0.65])))])
-        #self.X = Xy[:,:-1]
-        #self.y = Xy[:,-1]
+
         n1 = 100
         n2 = 5000
         n3 = 4900
@@ -50,7 +48,7 @@ class testRecursiveNystrom(unittest.TestCase):
         w, v = sp_linalg.eigh(K, eigvals=(K.shape[0]-n_components, K.shape[0]-1))
 
         K_optim_approx = np.dot(v,np.dot(np.diag(w), v.T))
-        indices = recursiveNystrom(self.X, n_components=n_components, other=self)
+        indices = recursiveNystrom(self.X, n_components=n_components)
         K_basis = gauss(self.X, row_idx=indices, col_idx=indices, gamma=0.01)
         K_approx = gauss(self.X, row_idx=np.arange(self.X.shape[0]), col_idx=indices, gamma=0.01)
 
