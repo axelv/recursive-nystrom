@@ -1,4 +1,4 @@
-function [rInd] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
+function [rInd, K] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
     %% Recursive Nystrom Sampling Based on Ridge Leverage Scores
     % This file implements Algorithm 3 as described in 
     %   https://arxiv.org/abs/1605.07583
@@ -148,7 +148,8 @@ function [rInd] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
     % disp(y(rInd))
     C = kernelFunc(X,1:n,rInd);
     SKS = C(rInd,:);
-    W = inv(SKS+(10e-6)*eye(s,s));
+    W = inv(SKS+(10e-10)*eye(s,s));
+    K = C*W*C';
 end
 
 %-------------------------------------------------------------------------------------
