@@ -116,7 +116,7 @@ function [rInd, K] = recursiveNystrom(X,s,kernelFunc,accelerated_flag)
         else
             lambda = (sum(diag(SKS).*weights.^2) - sum(abs(real(eigs(@(x) (SKS*(x.*weights)).*weights, SKSn, k)))))/k;
         end
-        
+        lambda = max(lambda,1e-7);
         % compute and sample by lambda ridge leverage scores
         if(l ~= 1)
             % on intermediate levels, we independently sample each column

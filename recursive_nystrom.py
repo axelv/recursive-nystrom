@@ -6,7 +6,7 @@ from tqdm import tqdm
 import gc
 
 
-def gauss(X: np.ndarray, Y: np.ndarray=None, gamma=0.05):
+def gauss(X: np.ndarray, Y: np.ndarray=None, gamma=0.01):
     # todo make this implementation more python like!
 
     if Y is None:
@@ -30,7 +30,7 @@ def uniformNystrom(X, n_components: int, kernel_func=gauss):
     return C, W
 
 
-def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=False, random_state=None):
+def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=False, random_state=None, lmbda_0=0, return_leverage_score=False, **kwargs):
     '''
 
     :param X:
@@ -77,9 +77,14 @@ def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=F
             lmbda = 10e-6
             # don't set to exactly 0 to avoid stability issues
         else:
-            lmbda = (np.sum(np.diag(SKS) * (weights ** 2)) \
+            # eigenvalues equal roughly the number of points per cluster, maybe this should scale with n?
+            # can be interpret as the zoom level
+            lmbda = (np.sum(np.diag(SKS) * (weights ** 2))
                     - np.sum(spl.eigvalsh(SKS * weights[:,None] * weights[None,:], eigvals=(SKS.shape[0]-k, SKS.shape[0]-1))))/k
-
+        lmbda = np.maximum(lmbda_0*SKS.shape[0], lmbda)
+        if lmbda == lmbda_0*SKS.shape[0]:
+            print("Set lambda to %d." % lmbda)
+        #lmbda = np.minimum(lmbda, 5)
             # lmbda = spl.eigvalsh(SKS * weights * weights.T, eigvals=(0, SKS.shape[0]-k-1)).sum()/k
             # calculate the n-k smallest eigenvalues
 
@@ -109,7 +114,10 @@ def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=F
             sample = rng.choice(X.shape[0], size=n_components, replace=False, p=p)
         indices = perm[sample]
 
-    return indices
+    if return_leverage_score:
+        return indices, leverage_score[np.argsort(perm)]
+    else:
+        return indices
 
 
 # Below the copyright info that came with the original MATLAB implementation
