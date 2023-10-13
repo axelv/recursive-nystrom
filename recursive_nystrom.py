@@ -43,14 +43,14 @@ def recursiveNystrom(X, n_components: int, kernel_func=gauss, accelerated_flag=F
     rng = np.random.RandomState(random_state)
 
     n_oversample = np.log(n_components)
-    k = np.ceil(n_components / (4 * n_oversample)).astype(np.int)
-    n_levels = np.ceil(np.log(X.shape[0] / n_components) / np.log(2)).astype(np.int)
+    k = np.ceil(n_components / (4 * n_oversample)).astype(int)
+    n_levels = np.ceil(np.log(X.shape[0] / n_components) / np.log(2)).astype(int)
     perm = rng.permutation(X.shape[0])
 
     # set up sizes for recursive levels
     size_list = [X.shape[0]]
     for l in range(1, n_levels+1):
-        size_list += [np.ceil(size_list[l - 1] / 2).astype(np.int)]
+        size_list += [np.ceil(size_list[l - 1] / 2).astype(int)]
 
     # indices of poitns selected at previous level of recursion
     # at the base level it's just a uniform sample of ~ n_component points
